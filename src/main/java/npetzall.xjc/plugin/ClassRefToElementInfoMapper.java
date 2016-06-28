@@ -12,7 +12,10 @@ import com.sun.tools.xjc.outline.PackageOutline;
 import com.sun.tools.xjc.reader.xmlschema.bindinfo.BIClass;
 import com.sun.tools.xjc.reader.xmlschema.bindinfo.BIDeclaration;
 import com.sun.tools.xjc.reader.xmlschema.bindinfo.BindInfo;
+import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.impl.ComplexTypeImpl;
+import com.sun.xml.xsom.impl.ComponentImpl;
 import com.sun.xml.xsom.impl.ElementDecl;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -63,11 +66,32 @@ public class ClassRefToElementInfoMapper extends Plugin {
     @Override
     public void postProcessModel(Model model, ErrorHandler errorHandler) {
         super.postProcessModel(model, errorHandler);
-        Iterator<XSElementDecl> xsElementDeclIterator = model.schemaComponent.iterateElementDecls();
+        processComplexTypes(model.schemaComponent.iterateComplexTypes());
+        processElements(model, model.schemaComponent.iterateElementDecls());
+    }
+
+    private void processComplexTypes(Iterator<XSComplexType> xsComplexTypeIterator) {
+        while(xsComplexTypeIterator.hasNext()) {
+            ComplexTypeImpl complexType = getComplexType(xsComplexTypeIterator.next());
+            BIClass biClass = getBIClass(complexType);
+            processBIClass(biClass);
+        }
+    }
+
+    private ComplexTypeImpl getComplexType(XSComplexType xsComplexType) {
+        ComplexTypeImpl complexType = null;
+        if(xsComplexType instanceof ComplexTypeImpl) {
+            complexType = (ComplexTypeImpl) xsComplexType;
+        }
+        return  complexType;
+    }
+
+    private void processElements(Model model, Iterator<XSElementDecl> xsElementDeclIterator) {
         while(xsElementDeclIterator.hasNext()) {
             ElementDecl elementDecl = getElementDecl(xsElementDeclIterator.next());
             BIClass biClass = getBIClass(elementDecl);
-            processClassRef(model,elementDecl,biClass);
+            createCElementInfo(model,elementDecl,biClass);
+            processBIClass(biClass);
         }
     }
 
@@ -79,10 +103,10 @@ public class ClassRefToElementInfoMapper extends Plugin {
         return elementDecl;
     }
 
-    private BIClass getBIClass(ElementDecl elementDecl) {
+    private BIClass getBIClass(ComponentImpl component) {
         BIClass biClass = null;
-        if(hasBIClass(elementDecl)) {
-            BindInfo bindInfo = (BindInfo) elementDecl.getAnnotation().getAnnotation();
+        if(hasBIClass(component)) {
+            BindInfo bindInfo = (BindInfo) component.getAnnotation().getAnnotation();
             for(BIDeclaration biDeclaration: bindInfo.getDecls()) {
                 if (biDeclaration instanceof BIClass) {
                     biClass = (BIClass) biDeclaration;
@@ -92,14 +116,14 @@ public class ClassRefToElementInfoMapper extends Plugin {
         return biClass;
     }
 
-    private boolean hasBIClass(ElementDecl elementDecl) {
-        return elementDecl != null &&
-                elementDecl.getAnnotation() != null &&
-                elementDecl.getAnnotation().getAnnotation() != null &&
-                elementDecl.getAnnotation().getAnnotation() instanceof BindInfo;
+    private boolean hasBIClass(ComponentImpl component) {
+        return component != null &&
+                component.getAnnotation() != null &&
+                component.getAnnotation().getAnnotation() != null &&
+                component.getAnnotation().getAnnotation() instanceof BindInfo;
     }
 
-    private void processClassRef(Model model, ElementDecl elementDecl, BIClass biClass) {
+    private void createCElementInfo(Model model, ElementDecl elementDecl, BIClass biClass) {
         if (shouldProcessClassRef(model, elementDecl, biClass)) {
             new CElementInfo(
                     model,
@@ -111,11 +135,16 @@ public class ClassRefToElementInfoMapper extends Plugin {
                     null,
                     elementDecl.getLocator()
             );
-            toRemove.add(biClass.getExistingClassRef().substring(0, biClass.getExistingClassRef().lastIndexOf('.')));
         }
     }
 
     private boolean shouldProcessClassRef(Model model, ElementDecl elementDecl, BIClass biClass) {
         return model != null && elementDecl != null && biClass != null && elementDecl.isGlobal() && biClass.getExistingClassRef() != null;
+    }
+
+    private void processBIClass(BIClass biClass) {
+        if(biClass != null && biClass.getExistingClassRef() != null) {
+            toRemove.add(biClass.getExistingClassRef().substring(0, biClass.getExistingClassRef().lastIndexOf('.')));
+        }
     }
 }
