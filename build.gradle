@@ -1,3 +1,6 @@
+plugins {
+    id "com.jfrog.bintray" version "1.6"
+}
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
@@ -41,6 +44,22 @@ publishing {
                 classifier "sources"
             }
         }
+    }
+}
+
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+    publications = ['mavenJava']
+    pkg {
+        repo = 'maven'
+        name = 'xjc-classref-mapper'
+        desc = 'Adds class-ref bindings as CElementInfo(elementmapping), and removes all generated code in the class-ref package'
+        licenses = ['MIT']
+        websiteUrl = 'https://github.com/npetzall/xjc-classref-mapper'
+        issueTrackerUrl = 'https://github.com/npetzall/xjc-classref-mapper/issues'
+        vcsUrl = 'https://github.com/npetzall/xjc-classref-mapper.git'
+        githubRepo = 'npetzall/xjc-classref-mapper'
     }
 }
 

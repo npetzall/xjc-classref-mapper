@@ -28,3 +28,21 @@ You get the following typ of message when using wsimport:
 ```
 
 # Disclaimer this has not been tested at runtime yet!!! It generates, it compiles, but it has not yet been used.
+
+## Usage
+
+We/I are on bintray
+Adde repo and dependency
+
+
+```
+repository {
+    maven {
+        url  "http://dl.bintray.com/npetzall/maven"
+    }
+}
+dependencies {
+    compile 'npetzall.xjc.plugin:xjc-classref-mapper:0.0.1'
+}
+```
+
