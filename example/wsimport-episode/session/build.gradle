@@ -1,0 +1,53 @@
+configurations {
+  xjc
+}
+
+dependencies {
+  xjc 'org.glassfish.jaxb:jaxb-jxc:2.2.11'
+}
+
+task xjc {
+  ext.xsdFile = file("$projectDir/../wsdl/session.xsd")
+  ext.bindings = file("$projectDir/bindings")
+  ext.generatedSources = file("$projectDir/src/generated/java")
+  ext.generatedResources = file("$projectDir/src/generated/resources")
+
+  inputs.file xsdFile
+  inputs.dir bindings
+  outputs.dir generatedSources
+  outputs.dir generatedResources
+
+  project.sourceSets.main.java.srcDirs += generatedSources
+  project.sourceSets.main.resources.srcDirs += generatedResources
+
+  doFirst {
+    generatedSources.delete()
+    generatedResources.delete()
+    generatedSources.mkdirs()
+    file("$generatedResources/META-INF").mkdirs()
+  }
+
+  ant.taskdef(name: 'xjc',
+          classname: 'com.sun.tools.xjc.XJC2Task',
+          classpath: configurations.xjc.asPath
+  )
+
+  doLast {
+    ant.xjc (
+        destdir: "$generatedSources",
+        extension: true,
+        schema: "$xsdFile"
+      ) {
+        binding(dir: "$bindings", includes: "*.xml")
+        arg(line:"-episode $generatedResources/META-INF/sun-jaxb.episode")
+      }
+    ant.replace(file: "$generatedResources/META-INF/sun-jaxb.episode", token: "<schemaBindings map=\"false\">", value: "<schemaBindings map=\"true\">")
+  }
+}
+
+compileJava.dependsOn xjc
+
+clean {
+  delete xjc.generatedSources
+  delete xjc.generatedResources
+}

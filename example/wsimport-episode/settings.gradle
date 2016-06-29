@@ -1,0 +1,5 @@
+rootProject.name = 'wsdl-message-element-episode'
+include 'authentication'
+include 'session'
+include 'divide'
+include 'multiply'

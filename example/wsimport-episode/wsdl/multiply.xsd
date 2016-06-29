@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://npetzall/multiply"
+           elementFormDefault="qualified">
+  <element name="Input">
+    <complexType>
+      <sequence>
+        <element name="multiplicand" type="int"/>
+        <element name="multiplier" type="int"/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="Output">
+    <complexType>
+      <sequence>
+        <element name="product" type="int"/>
+      </sequence>
+    </complexType>
+  </element>
+</schema>

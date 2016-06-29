@@ -19,6 +19,12 @@ So the plugin will later remove that ObjectFactory so that it wont shadow the sh
 (more precisely it will remove the class ref="" package and all it's classes)
 
 add jar to wsImport classpath add xjc argument -classref and it "should" produce generated code with references to existing.
+
+This type of usecase exists under example/wsimport-episode as a separate project.
+
+For fancy development in the root (xjc-classref-mapper) you can bump the version  
+and run ```./gradlew pTML``` then in example/wsimport-episode/build.gradle you   
+can bump the version of the plugin in and it will use the version in you maveLocal repo *~/.m2*
  
 ## When to try this plugin
 

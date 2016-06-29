@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://npetzall/authentication"
+           elementFormDefault="qualified">
+  <element name="Credentials">
+    <complexType>
+      <sequence>
+        <element name="User" type="string"/>
+        <element name="Password" type="string"/>
+      </sequence>
+    </complexType>
+  </element>
+</schema>

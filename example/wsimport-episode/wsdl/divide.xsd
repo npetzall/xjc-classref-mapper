@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://npetzall/divide"
+           elementFormDefault="qualified">
+  <element name="Input">
+    <complexType>
+      <sequence>
+        <element name="dividend" type="int"/>
+        <element name="divisor" type="int"/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="Output">
+    <complexType>
+      <sequence>
+        <element name="quotient" type="int"/>
+      </sequence>
+    </complexType>
+  </element>
+</schema>

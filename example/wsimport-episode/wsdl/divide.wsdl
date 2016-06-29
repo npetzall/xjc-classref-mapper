@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:tns="http://npetzall/divide/wsdl"
+                  xmlns:auth="http://npetzall/authentication"
+                  xmlns:sess="http://npetzall/session"
+                  xmlns:div="http://npetzall/divide"
+                  targetNamespace="http://npetzall/divide/wsdl">
+
+    <wsdl:types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema">
+            <import namespace="http://npetzall/authentication" schemaLocation="authentication.xsd" />
+            <import namespace="http://npetzall/session" schemaLocation="session.xsd" />
+            <import namespace="http://npetzall/divide" schemaLocation="divide.xsd" />
+        </schema>
+    </wsdl:types>
+
+    <wsdl:message name="credentials">
+        <wsdl:part name="credentials" element="auth:Credentials"/>
+    </wsdl:message>
+
+    <wsdl:message name="session">
+        <wsdl:part name="session" element="sess:Session"/>
+    </wsdl:message>
+
+    <wsdl:message name="input">
+        <wsdl:part name="body" element="div:Input" />
+    </wsdl:message>
+
+    <wsdl:message name="output">
+        <wsdl:part name="body" element="div:Output"/>
+    </wsdl:message>
+
+    <wsdl:portType name="DividePort">
+        <wsdl:operation name="Divide">
+            <wsdl:input message="tns:input" />
+            <wsdl:output message="tns:output"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="DivideBinding" type="tns:DividePort">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+        <wsdl:operation name="Divide">
+            <soap:operation soapAction="http://npetzall/Divide" style="document" />
+            <wsdl:input>
+                <soap:header message="tns:credentials" part="credentials" use="literal" />
+                <soap:header message="tns:session" part="session" use="literal" />
+                <soap:body message="tns:input" parts="body" use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:header message="tns:session" part="session" use="literal" />
+                <soap:body message="tns:ouput" parts="body" use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="DivideService">
+        <wsdl:port name="port" binding="tns:DivideBinding">
+            <soap:address location="http://localhost:8888/soap" />
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

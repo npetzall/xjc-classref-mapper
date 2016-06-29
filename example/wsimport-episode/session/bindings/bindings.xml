@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bindings version="2.1" xmlns="http://java.sun.com/xml/ns/jaxb">
+  <bindings scd="x-schema::tns" xmlns:tns="http://npetzall/session">
+    <schemaBindings>
+      <package name="npetzall.headers.session"/>
+    </schemaBindings>
+  </bindings>
+</bindings>

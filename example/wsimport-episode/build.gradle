@@ -1,0 +1,90 @@
+subprojects {
+  apply plugin: 'java'
+  apply plugin: 'idea'
+
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
+
+  repositories {
+      mavenLocal()
+      jcenter()
+      mavenCentral()
+  }
+}
+
+configure([project(':divide'),project(':multiply')]) {
+  configurations {
+    wsimport
+    authentication
+    session
+  }
+
+  dependencies {
+    wsimport 'com.sun.xml.ws:jaxws-tools:2.2.10'
+    authentication project(':authentication')
+    session project(':session')
+    wsimport 'npetzall.xjc.plugin:xjc-classref-mapper:0.0.2'
+    wsimport 'org.jvnet.jaxb2_commons:jaxb2-fluent-api:3.0'
+
+    compile configurations.authentication.dependencies
+    compile configurations.session.dependencies
+  }
+
+  task wsimport {
+    dependsOn project(':authentication').jar
+    dependsOn project(':session').jar
+
+    ext.bindings = file("$projectDir/bindings")
+    ext.wsdlFile = file("$projectDir/../wsdl")
+    ext.generatedSources = file("${projectDir}/src/generated/java")
+
+    inputs.dir wsdlFile
+    inputs.dir bindings
+    outputs.dir generatedSources
+
+    sourceSets.main.java.srcDirs += generatedSources
+
+    doFirst {
+      generatedSources.delete()
+      generatedSources.mkdirs()
+    }
+
+    ant.taskdef(name: 'wsimport',
+            classname: 'com.sun.tools.ws.ant.WsImport2',
+            classpath: configurations.wsimport.asPath
+    )
+
+    doLast {
+        ant.wsimport(
+          keep: true,
+          sourcedestdir: generatedSources,
+          extension: "true",
+          verbose: "true",
+          quiet: "false",
+          xnocompile: "true",
+          xadditionalHeaders: true,
+          wsdl: wsdlFile
+        ){
+            binding(dir: "$bindings", includes: "*.xml")
+            xjcarg(value: "-XautoNameResolution")
+            xjcarg(value: "-Xfluent-api")
+            xjcarg(value: "-classref")
+            xjcarg(file: "${configurations.session.asPath}")
+            xjcarg(file: "${configurations.authentication.asPath}")
+        }
+    }
+  }
+
+  clean {
+    delete wsimport.generatedSources
+  }
+
+  compileJava.dependsOn wsimport
+
+}
+
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.14'
+}
