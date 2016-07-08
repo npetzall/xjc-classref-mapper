@@ -1,6 +1,6 @@
 # xjc-classref-mapper
 
-A simple stab at a plugin for handling classref when using wsimport.
+Allow episodes and classref to be used with wsimport
 
 ## Usecase
 
@@ -10,6 +10,8 @@ But the authentication (session) is shared.
 
 You want to mimic this at the consumer end.
 
+## Not out of the box
+
 XJC supports "class ref" for binding Elements to existing classes, but this in not exposed in the Outline,  
 which is used to create a JAXBModel which in turns is used by WSImport.
 
@@ -18,9 +20,11 @@ CElementInfo won't create a class, but an ObjectFactory will be created.
 So the plugin will later remove that ObjectFactory so that it wont shadow the shared lib ObjectFactory.   
 (more precisely it will remove the class ref="" package and all it's classes)
 
-add jar to wsImport classpath add xjc argument -classref and it "should" produce generated code with references to existing.
+Add jar to wsImport classpath add xjc argument -classref and it "should" produce generated code with references to existing.
 
 This type of usecase exists under example/wsimport-episode as a separate project.
+
+## Development
 
 For fancy development in the root (xjc-classref-mapper) you can bump the version  
 and run ```./gradlew pTML``` then in example/wsimport-episode/build.gradle you   
@@ -61,10 +65,22 @@ Also since it removes in relation to package the episode must look something lik
     </bindings>
 ```  
 
+Using gradle or ant you can simply do:
+```
+ant.replace(file: "$generatedResources/META-INF/sun-jaxb.episode", token: "<schemaBindings map=\"false\">", value: "<schemaBindings map=\"true\">")
+```
+
+If you noticed the episode-file is located in META-INF and named sun-jaxb.episode.
+Nice thing is that it will be loaded if jar is added as argument for xjc
+
+```
+xjcarg(file: "${configurations.session.asPath}")
+```
+
 ## Usage
 
 We/I are on bintray
-Adde repo and dependency
+Add repo and dependency
 
 
 ```
